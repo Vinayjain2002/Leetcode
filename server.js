@@ -1,7 +1,25 @@
-const app= require('./app.js')
+require('dotenv').config();
 
-const PORT= process.env.PORT || 3000;
+const app = require('./app.js');
+const prisma = require('./lib/prisma.js');
+const connectMongo = require('./config/mongodb.js');
 
-app.listen(PORT, ()=>{
-    console.log("The server is running on PORT ", PORT);
-})
+const PORT = process.env.PORT || 3000;
+
+async function startServer() {
+    try {
+        await prisma.$connect();
+        console.log('PostgreSQL connected via Prisma');
+
+        await connectMongo();
+
+        app.listen(PORT, () => {
+            console.log(`Server running on PORT ${PORT}`);
+        });
+    } catch (err) {
+        console.error('Server start failed:', err);
+        process.exit(1);
+    }
+}
+
+startServer();
