@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const app = require('./app.js');
-const prisma = require('./lib/prisma.js');
+const prisma = require('./LeetCodeBackend/lib/prisma.js');
 const connectMongo = require('./config/mongodb.js');
 
 const PORT = process.env.PORT || 3000;

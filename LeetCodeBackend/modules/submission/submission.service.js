@@ -106,7 +106,7 @@ const submit = async (userId, { problemId, language, code, contestId }) => {
                 referenceId: submission.id,
                 referenceKey: 'submission',
                 amount: problem.coinsOnSolve,
-                transactionType: 'EARNED'
+                transactionTypcreateCoinTransactione: 'EARNED'
             });
         }
 

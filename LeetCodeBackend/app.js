@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const rateLimiter = require('./middleware/rateLimmiter.js');
-const errorMiddleware = require('./middleware/errorMiddleware.js');
+const rateLimiter = require('./LeetCodeBackend/middleware/rateLimmiter.js');
+const errorMiddleware = require('./LeetCodeBackend/middleware/errorMiddleware.js');
 
 const authRouter = require('./modules/auth/auth.route.js');
 const userRouter = require('./modules/user/user.route.js');
