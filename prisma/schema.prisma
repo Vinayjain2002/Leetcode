@@ -1,0 +1,456 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String   @id @default(uuid())
+  username        String   @unique
+  firstName       String
+  lastName        String?
+
+  profilePicture  String?
+  title           String?
+  summary         String?
+
+  isTopVoice      Boolean  @default(false)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  submissions     Submission[]
+  notifications   Notification[]
+  coinTransactions CoinTransaction[]
+}
+
+model Problem {
+  id              String   @id @default(uuid())
+
+  title           String
+
+  difficulty      Difficulty
+
+  coinsOnSolve    Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  submissions     Submission[]
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+
+enum SubmissionStatus {
+  PENDING
+  RUNNING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+}
+
+enum SubmissionStatus {
+  PENDING
+  RUNNING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+}
+
+
+enum CoinTransactionType {
+  EARNED
+  SPENT
+  REFUND
+}
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SubmissionStatus {
+  PENDING
+  RUNNING
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILATION_ERROR
+}
+
+enum NotificationType {
+  CONTEST
+  PROBLEM
+  SYSTEM
+  ACHIEVEMENT
+  FOLLOW
+}
+
+enum CoinTransactionType {
+  EARNED
+  SPENT
+  REFUND
+}
+
+model User {
+  id                String   @id @default(uuid())
+
+  username          String   @unique
+  email             String   @unique
+  passwordHash      String
+
+  firstName         String
+  lastName          String?
+
+  profilePicture    String?
+  title             String?
+  summary           String?
+
+  isTopVoice        Boolean @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  submissions       Submission[]
+  notifications     Notification[]
+  coinTransactions  CoinTransaction[]
+
+  streak            UserStreak?
+
+  educations        UserEducation[]
+  experiences       UserExperience[]
+
+  contests          UserContest[]
+
+  postedProblems    Problem[]
+}
+
+model University {
+  id               String @id @default(uuid())
+
+  instituteName    String
+  establishedYear  Int?
+
+  location         String?
+
+  createdAt        DateTime @default(now())
+
+  educations       UserEducation[]
+}
+
+model UserEducation {
+  id              String @id @default(uuid())
+
+  userId          String
+  universityId    String
+
+  degree          String
+
+  startYear       Int?
+  endYear         Int?
+
+  gradeValue      String?
+
+  createdAt       DateTime @default(now())
+
+  user            User @relation(fields: [userId], references: [id])
+  university      University @relation(fields: [universityId], references: [id])
+}
+
+model Company {
+  id                String @id @default(uuid())
+
+  companyName       String
+
+  establishedYear   Int?
+
+  teamSize          Int?
+
+  location          String?
+
+  createdAt         DateTime @default(now())
+
+  employees         UserExperience[]
+}
+
+model UserExperience {
+  id            String @id @default(uuid())
+
+  userId        String
+  companyId     String
+
+  role          String
+
+  department    String?
+
+  isCurrent     Boolean @default(false)
+
+  startDate     DateTime?
+  endDate       DateTime?
+
+  createdAt     DateTime @default(now())
+
+  user          User @relation(fields: [userId], references: [id])
+
+  company       Company @relation(
+                    fields: [companyId],
+                    references: [id]
+                 )
+}
+
+model UserStreak {
+  id                String @id @default(uuid())
+
+  userId            String @unique
+
+  currentStreak     Int @default(0)
+
+  longestStreak     Int @default(0)
+
+  lastActiveDate    DateTime?
+
+  streakGrid        Json
+
+  year              Int
+
+model Problem {
+  id               String @id @default(uuid())
+
+  title            String
+
+  difficulty       Difficulty
+
+  coinsOnSolve     Int @default(0)
+
+  createdByUserId  String?
+
+  createdAt        DateTime @default(now())
+
+  updatedAt        DateTime @updatedAt
+
+  createdBy        User? @relation(
+                      fields:[createdByUserId],
+                      references:[id]
+                   )
+
+  submissions      Submission[]
+
+  tags             ProblemTag[]
+
+  contestProblems  ContestProblem[]
+
+  problemOfDays    ProblemOfDay[]
+}
+
+model Tag {
+  id          String @id @default(uuid())
+
+  tagName     String @unique
+
+  problems    ProblemTag[]
+}
+
+
+model ProblemTag {
+  problemId     String
+  tagId         String
+
+  problem       Problem @relation(
+                   fields:[problemId],
+                   references:[id]
+                )
+
+  tag           Tag @relation(
+                   fields:[tagId],
+                   references:[id]
+                )
+
+  @@id([problemId, tagId])
+}
+
+model ProblemOfDay {
+
+  date                 DateTime @id
+
+  problemId            String
+
+  solvedByCount        Int @default(0)
+
+  acceptanceRate       Float @default(0)
+
+  problem              Problem @relation(
+                           fields:[problemId],
+                           references:[id]
+                        )
+}
+
+
+model Submission {
+
+  id               String @id @default(uuid())
+
+  userId           String
+
+  problemId        String
+
+  contestId        String?
+
+  language         String
+
+  status           SubmissionStatus
+
+  runtime          Float?
+
+  memory           Float?
+
+  submittedAt      DateTime @default(now())
+
+  user             User @relation(
+                      fields:[userId],
+                      references:[id]
+                   )
+
+  problem          Problem @relation(
+                      fields:[problemId],
+                      references:[id]
+                   )
+}
+
+model CoinTransaction {
+
+  id              String @id @default(uuid())
+
+  userId          String
+
+  referenceId     String?
+
+  referenceKey    String?
+
+  amount          Int
+
+  transactionType CoinTransactionType
+
+  createdAt       DateTime @default(now())
+
+  user            User @relation(
+                    fields:[userId],
+                    references:[id]
+                  )
+}
+
+model Contest {
+
+  id            String @id @default(uuid())
+
+  title         String
+
+  startsAt      DateTime
+
+  endsAt        DateTime
+
+  createdAt     DateTime @default(now())
+
+  participants  UserContest[]
+
+  problems      ContestProblem[]
+}
+
+
+model ContestProblem {
+
+  contestId      String
+
+  problemId      String
+
+  orderIndex     Int
+
+  contest        Contest @relation(
+                    fields:[contestId],
+                    references:[id]
+                 )
+
+  problem        Problem @relation(
+                    fields:[problemId],
+                    references:[id]
+                 )
+
+  @@id([contestId, problemId])
+}
+
+model UserContest {
+
+  contestId      String
+
+  userId         String
+
+  rank           Int?
+
+  score          Int @default(0)
+
+  joinedAt       DateTime @default(now())
+
+  contest        Contest @relation(
+                    fields:[contestId],
+                    references:[id]
+                 )
+
+  user           User @relation(
+                    fields:[userId],
+                    references:[id]
+                 )
+
+  @@id([contestId, userId])
+}
+
+model Notification {
+
+  id               String @id @default(uuid())
+
+  userId           String
+
+  referenceId      String?
+
+  type             NotificationType
+
+  isRead           Boolean @default(false)
+
+  createdAt        DateTime @default(now())
+
+  user             User @relation(
+                      fields:[userId],
+                      references:[id]
+                   )
+}
+
